@@ -1,4 +1,3 @@
-import { desc } from "drizzle-orm";
 import { Plus } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
@@ -6,7 +5,6 @@ import { ThreadCard } from "@/components/thread-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { db } from "@/database";
-import { threads } from "@/database/schema";
 import { auth } from "@/lib/auth";
 
 export default async function HomePage() {
@@ -25,7 +23,21 @@ export default async function HomePage() {
                 orderBy: (comments, { asc }) => [asc(comments.createdAt)],
             },
         },
-        orderBy: [desc(threads.createdAt)],
+    });
+
+    // Algorithm Thread Sorting:
+    // 1. Many likes
+    // 2. Many comments
+    // 3. Just created
+    allThreads.sort((a, b) => {
+        const engagementA = a.likes.length + a.comments.length;
+        const engagementB = b.likes.length + b.comments.length;
+
+        // Sort by combined engagement first, then fallback to newest created if tied
+        return (
+            engagementB - engagementA ||
+            b.createdAt.getTime() - a.createdAt.getTime()
+        );
     });
 
     return (

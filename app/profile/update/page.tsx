@@ -42,8 +42,8 @@ export default function EditProfilePage() {
         },
     });
 
-    if (!data) return router.push("/auth/login");
     if (isPending) return <Loading />;
+    if (!data) return router.push("/auth/login");
     if (error?.message) return <h1>{error.message}</h1>;
 
     function onSubmit(data: z.infer<typeof updateProfileSchema>) {

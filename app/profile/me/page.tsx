@@ -140,7 +140,7 @@ export default async function ProfilePage() {
                                     <span>Joined {joinDate}</span>
                                 </div>
                             </div>
-                            <Link href="/profile/edit">
+                            <Link href="/profile/update">
                                 <Button
                                     variant="outline"
                                     size="sm"
