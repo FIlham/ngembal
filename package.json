@@ -5,7 +5,7 @@
     "scripts": {
         "dev": "next dev",
         "build": "next build",
-        "start": "next start",
+        "start": "drizzle-kit generate && drizzle-kit migrate && next start",
         "lint": "biome check",
         "format": "biome format --write",
         "db:generate": "drizzle-kit generate",
