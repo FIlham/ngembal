@@ -38,7 +38,7 @@ export default function EditProfilePage() {
         values: {
             name: data?.user?.name || "",
             bio: data?.user?.bio || "",
-            image: data?.user?.image || "",
+            image: data?.user?.image,
         },
     });
 

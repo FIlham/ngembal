@@ -47,7 +47,7 @@ export async function updateProfileAction(
     }
 
     // Update image if provided
-    if (validated.data.image !== undefined && validated.data.image !== "") {
+    if (validated.data.image !== undefined && validated.data.image !== null) {
         const uploadResult = await uploadImage(validated.data.image, true);
         if (!uploadResult.success) {
             return {
@@ -81,5 +81,6 @@ export async function updateProfileAction(
     }
 
     revalidatePath("/profile/me");
+    revalidatePath("/profile/update");
     redirect("/profile/me");
 }

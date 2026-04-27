@@ -7,10 +7,13 @@ export const updateProfileSchema = createInsertSchema(user, {
     name: z.string().max(50, "Name must be at most 50 characters"),
     image: z
         .union([
-            z.file().refine((file) => file.type.startsWith("image/"), {
-                message: "Only image files are allowed",
-            }),
-            z.string().url("Must be a valid URL"),
+            z
+                .file()
+                .refine((file) => file.type.startsWith("image/"), {
+                    message: "Only image files are allowed",
+                })
+                .nullable(),
+            z.string().url("Must be a valid URL").nullable(),
         ])
         .optional(),
 }).pick({
@@ -33,38 +36,10 @@ export const loginSchema = z.object({
     password: z.string().min(1, "Password is required"),
 });
 
-// Enhanced password validation for better security
-const passwordSchema = z
-    .string()
-    .min(12, "Password must be at least 12 characters long")
-    .refine(
-        (pwd) => /[A-Z]/.test(pwd),
-        "Password must contain at least one uppercase letter",
-    )
-    .refine(
-        (pwd) => /[a-z]/.test(pwd),
-        "Password must contain at least one lowercase letter",
-    )
-    .refine(
-        (pwd) => /[0-9]/.test(pwd),
-        "Password must contain at least one number",
-    )
-    .refine(
-        (pwd) => /[^A-Za-z0-9]/.test(pwd),
-        "Password must contain at least one special character (!@#$%^&*)",
-    )
-    .refine(
-        (pwd) =>
-            !/(012|123|234|345|456|567|678|789|890|abc|bcd|cde|def|password|admin|user|test)/i.test(
-                pwd,
-            ),
-        "Password contains common or sequential characters",
-    );
-
 export const registerSchema = z.object({
     name: z.string().min(3, "Name must be at least 3 characters long"),
     email: z.string().email("Invalid email address"),
-    password: passwordSchema,
+    password: z.string().min(6, "Password must be at least 6 characters long"),
 });
 
 export const validIdSchema = z.string().uuid("Invalid ID format");

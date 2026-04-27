@@ -1,6 +1,7 @@
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
+import { captcha } from "better-auth/plugins";
 import { db } from "@/database";
 import { uploadImage } from "./cloudinary";
 import { env } from "./env";
@@ -54,5 +55,11 @@ export const auth = betterAuth({
             prompt: "select_account",
         },
     },
-    plugins: [nextCookies()],
+    plugins: [
+        nextCookies(),
+        captcha({
+            provider: "google-recaptcha",
+            secretKey: env.RECAPTCHA_SECRET_KEY,
+        }),
+    ],
 });

@@ -13,7 +13,6 @@ export async function proxy(request: NextRequest) {
     const isAuthRoute = path.startsWith("/auth");
     const isPublicRoute =
         path === "/" || PUBLIC_ROUTES.some((route) => path.includes(route));
-    console.log(path, isPublicRoute);
 
     if (session && isAuthRoute) {
         return NextResponse.redirect(new URL("/", request.url));

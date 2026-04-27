@@ -4,7 +4,11 @@ import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 import { FaGoogle } from "react-icons/fa";
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import {
+    GoogleReCaptchaProvider,
+    useGoogleReCaptcha,
+} from "react-google-recaptcha-v3";
 import type z from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,9 +29,12 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { authClient } from "@/lib/auth-client";
 import { loginSchema } from "@/lib/validations";
+import { env } from "@/lib/env";
 
-export default function LoginPage() {
-    // const router = useRouter();
+function LoginForm() {
+    const router = useRouter();
+    const { executeRecaptcha } = useGoogleReCaptcha();
+
     const form = useForm<z.infer<typeof loginSchema>>({
         resolver: standardSchemaResolver(loginSchema),
         defaultValues: {
@@ -36,23 +43,27 @@ export default function LoginPage() {
         },
     });
 
-    async function onSubmit(_data: z.infer<typeof loginSchema>) {
-        return form.setError("root", {
-            type: "manual",
-            message: "Login with email is not available for now",
+    async function onSubmit(data: z.infer<typeof loginSchema>) {
+        if (!executeRecaptcha) return;
+        const token = await executeRecaptcha("login");
+
+        const { error } = await authClient.signIn.email({
+            email: data.email,
+            password: data.password,
+            fetchOptions: {
+                headers: {
+                    "x-captcha-response": token,
+                },
+            },
         });
-        // const { error } = await authClient.signIn.email({
-        //     email: data.email,
-        //     password: data.password,
-        // });
-        // if (error) {
-        //     form.setError("root", {
-        //         type: "manual",
-        //         message: error.message || "An error occurred during login",
-        //     });
-        // } else {
-        //     router.push("/");
-        // }
+        if (error) {
+            form.setError("root", {
+                type: "manual",
+                message: error.message || "An error occurred during login",
+            });
+        } else {
+            router.push("/");
+        }
     }
 
     return (
@@ -122,6 +133,7 @@ export default function LoginPage() {
                                     </Field>
                                 )}
                             />
+
                             <Field>
                                 {form.formState.isSubmitting ? (
                                     <Button disabled size="sm">
@@ -129,7 +141,12 @@ export default function LoginPage() {
                                         Loading...
                                     </Button>
                                 ) : (
-                                    <Button type="submit">Login</Button>
+                                    <Button
+                                        type="submit"
+                                        disabled={!executeRecaptcha}
+                                    >
+                                        Login
+                                    </Button>
                                 )}
                                 <Button
                                     variant="outline"
@@ -152,5 +169,15 @@ export default function LoginPage() {
                 </CardContent>
             </Card>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <GoogleReCaptchaProvider
+            reCaptchaKey={env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+        >
+            <LoginForm />
+        </GoogleReCaptchaProvider>
     );
 }

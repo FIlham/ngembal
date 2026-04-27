@@ -12,7 +12,13 @@ export const env = createEnv({
         CLOUDINARY_CLOUD_NAME: z.string(),
         CLOUDINARY_API_KEY: z.string(),
         CLOUDINARY_UPLOAD_PRESET: z.string(),
+        RECAPTCHA_SECRET_KEY: z.string(),
     },
-    client: {},
-    experimental__runtimeEnv: {},
+    client: {
+        NEXT_PUBLIC_RECAPTCHA_SITE_KEY: z.string(),
+    },
+    experimental__runtimeEnv: {
+        NEXT_PUBLIC_RECAPTCHA_SITE_KEY:
+            process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
+    },
 });
